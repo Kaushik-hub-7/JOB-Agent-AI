@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JOB Agent AI v3</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#00c2ff;--accent2:#00ff9d;--accent3:#ff6b35;--red:#ff4757;--walkin:#a78bfa}
+[data-theme="dark"]{--bg:#090e1c;--surface:#111825;--surface2:#19243a;--border:#1d2c44;--text:#e4ecf7;--muted:#5e7099;--sub:#8595b8;--input-bg:#090e1c;--log-bg:#060d1a;--step-bg:#19243a;--grid:rgba(0,194,255,.025);--shadow:0 4px 28px rgba(0,0,0,.45);--modal-bg:#111825;--bnew-bg:rgba(0,255,157,.1);--bnew-c:#00ff9d;--bseen-bg:rgba(0,194,255,.1);--bseen-c:#00c2ff;--bna-bg:rgba(94,112,153,.18);--bna-c:#5e7099;--toggle:#19243a}
+[data-theme="light"]{--bg:#f2f5fc;--surface:#fff;--surface2:#e9eef8;--border:#cdd8ed;--text:#18243f;--muted:#7082a4;--sub:#4f6080;--input-bg:#f7f9fd;--log-bg:#1a2235;--step-bg:#e9eef8;--grid:rgba(0,80,200,.025);--shadow:0 4px 28px rgba(0,60,180,.07);--modal-bg:#fff;--bnew-bg:rgba(0,175,100,.11);--bnew-c:#00954e;--bseen-bg:rgba(0,110,220,.1);--bseen-c:#0065cc;--bna-bg:rgba(100,120,155,.12);--bna-c:#7082a4;--toggle:#e9eef8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:0 22px 56px}
+header{display:flex;align-items:center;justify-content:space-between;padding:18px 0 22px;border-bottom:1px solid var(--border);margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.logo{display:flex;align-items:center;gap:12px}
+.lico{width:42px;height:42px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.lname{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;letter-spacing:-.4px;color:var(--text)}
+.lname span{color:var(--accent)}
+.lsub{font-size:10px;color:var(--muted);margin-top:1px}
+.hr{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pill{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:5px 13px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent2);box-shadow:0 0 7px var(--accent2);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+/* LIVE CLOCK */
+.live-clock{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:7px 14px}
+.clock-time{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--accent);letter-spacing:1px}
+.clock-date{font-size:10px;color:var(--muted);margin-top:1px}
+.clock-day{font-size:10px;color:var(--accent2);font-weight:700}
+.tw{display:flex;align-items:center;gap:8px;cursor:pointer}
+.ti{font-size:16px;user-select:none;transition:transform .2s}
+.ti:hover{transform:scale(1.15)}
+.tog{width:48px;height:26px;background:var(--toggle);border:1px solid var(--border);border-radius:99px;position:relative;transition:all .3s;cursor:pointer;flex-shrink:0}
+.tog::after{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));top:2px;left:2px;transition:transform .3s;box-shadow:0 2px 5px rgba(0,0,0,.3)}
+[data-theme="light"] .tog::after{transform:translateX(22px)}
+.cfg{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:20px;box-shadow:var(--shadow)}
+.cfg-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px;margin-bottom:13px}
+.cfg-sheet{display:grid;grid-template-columns:1fr auto auto auto;gap:9px;align-items:end}
+.cfg-sheet2{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end;margin-top:9px}
+.cfg-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:13px}
+.fg{display:flex;flex-direction:column;gap:6px}
+.fl{font-size:10px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted)}
+.fi{background:var(--input-bg);border:1px solid var(--border);border-radius:9px;padding:9px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+.fi:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,194,255,.07)}
+.fi::placeholder{color:var(--muted)}
+.sbtn{background:rgba(0,194,255,.1);border:1px solid rgba(0,194,255,.25);border-radius:9px;padding:9px 13px;color:var(--accent);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s;height:38px;align-self:end}
+.sbtn:hover{background:rgba(0,194,255,.18)}
+.sbtn.g{color:var(--accent2);border-color:rgba(0,255,157,.25)}
+.sbtn.g:hover{background:rgba(0,255,157,.1)}
+.sbtn.r{color:var(--red);border-color:rgba(255,71,87,.25)}
+.sbtn.r:hover{background:rgba(255,71,87,.1)}
+.sbtn.pu{color:var(--walkin);border-color:rgba(167,139,250,.25)}
+.sbtn.pu:hover{background:rgba(167,139,250,.1)}
+.ebtn{background:linear-gradient(135deg,#00c2ff,#00ff9d);color:#090e1c;border:none;border-radius:12px;padding:10px 28px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .2s;white-space:nowrap;height:40px}
+.ebtn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,194,255,.32)}
+.ebtn.run{background:linear-gradient(135deg,#ff6b35,#ff4757);color:#fff}
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:5px;margin-bottom:22px;overflow-x:auto}
+.tab{flex:1;min-width:110px;padding:8px 12px;border:none;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;border-radius:10px;transition:all .2s;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:5px}
+.tab:hover{color:var(--text);background:var(--surface2)}
+.tab.active{background:linear-gradient(135deg,rgba(0,194,255,.14),rgba(0,255,157,.07));color:var(--accent);border:1px solid rgba(0,194,255,.22)}
+.tab.walkin-tab.active{background:linear-gradient(135deg,rgba(167,139,250,.14),rgba(167,139,250,.07));color:var(--walkin);border:1px solid rgba(167,139,250,.22)}
+.panel{display:none;animation:fi .25s ease}.panel.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.mg{display:grid;grid-template-columns:305px 1fr;gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.ch{display:flex;align-items:center;gap:9px;padding:13px 17px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.ci{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.ct{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--text)}
+.cb{padding:15px}
+.uz{border:2px dashed var(--border);border-radius:11px;padding:18px 14px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.uz:hover,.uz.ov{border-color:var(--accent);background:rgba(0,194,255,.04)}
+.uz input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.ut{font-size:12px;font-weight:600;color:var(--text)}.us{font-size:10px;color:var(--muted);margin-top:3px}
+.uf{display:flex;align-items:center;gap:8px;background:var(--bnew-bg);border:1px solid rgba(0,255,157,.2);border-radius:9px;padding:9px 11px;margin-top:9px;font-size:12px;display:none}
+.uf .fn{flex:1;font-weight:600;color:var(--accent2)}
+.rmv{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px}
+.pfs{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.pf{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:8px 11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;transition:border-color .2s;width:100%}
+.pf:focus{border-color:var(--accent)}.pf::placeholder{color:var(--muted)}
+.stps{display:flex;flex-direction:column}
+.stp{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border)}
+.stp:last-child{border-bottom:none}
+.sn2{width:24px;height:24px;border-radius:50%;background:var(--step-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--muted);flex-shrink:0;transition:all .3s}
+.stp.active .sn2{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#090e1c;border-color:transparent;box-shadow:0 0 9px rgba(0,194,255,.4)}
+.stp.done .sn2{background:var(--bnew-bg);border-color:var(--accent2);color:var(--accent2)}
+.si{flex:1;min-width:0}.snm{font-size:11px;font-weight:600;color:var(--text)}.sd{font-size:10px;color:var(--muted);margin-top:1px}
+.ss{font-size:10px;padding:2px 6px;border-radius:20px;background:var(--surface2);color:var(--muted);white-space:nowrap;flex-shrink:0}
+.stp.active .ss{background:rgba(0,194,255,.12);color:var(--accent)}
+.stp.done .ss{background:var(--bnew-bg);color:var(--accent2)}
+@keyframes spin{to{transform:rotate(360deg)}}.sp{animation:spin .8s linear infinite;display:inline-block}
+.rp{display:flex;flex-direction:column;gap:14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px;text-align:center;box-shadow:var(--shadow)}
+.sv{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;line-height:1;margin-bottom:3px}
+.sl2{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.prog{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 16px;box-shadow:var(--shadow)}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;font-size:12px;font-weight:600;color:var(--text)}
+.pbg{background:var(--surface2);border-radius:99px;height:6px;overflow:hidden}
+.pf2{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .5s ease;box-shadow:0 0 8px rgba(0,194,255,.4)}
+.log{background:var(--log-bg);border:1px solid var(--border);border-radius:9px;padding:11px 13px;font-family:'Courier New',monospace;font-size:11px;height:150px;overflow-y:auto;line-height:1.8;color:#c0d0e8}
+.le{display:flex;gap:8px}.lt{color:#2d3f5e;flex-shrink:0}
+.li2{color:var(--accent)}.ls{color:var(--accent2)}.lw{color:var(--accent3)}.le2{color:var(--red)}
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pl{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:var(--text);background:var(--input-bg);border:1px solid var(--border);border-radius:7px;padding:6px 9px;transition:border-color .2s}
+.pl:hover{border-color:var(--accent)}.pl input{accent-color:var(--accent)}
+.dbw{overflow-x:auto;border-radius:12px;border:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead{background:var(--surface2);position:sticky;top:0;z-index:1}
+th{padding:10px 11px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 11px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(0,194,255,.025)}
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:99px;font-size:10px;font-weight:700}
+.bnew{background:var(--bnew-bg);color:var(--bnew-c)}.bseen{background:var(--bseen-bg);color:var(--bseen-c)}.bna{background:var(--bna-bg);color:var(--bna-c)}
+.bwalkin{background:rgba(167,139,250,.15);color:var(--walkin)}
+.al{color:var(--accent);text-decoration:none;font-size:11px;font-weight:700;transition:opacity .2s;display:inline-flex;align-items:center;gap:3px}
+.al:hover{opacity:.65;text-decoration:underline}
+.rb{background:none;border:1px solid var(--border);border-radius:7px;padding:5px 11px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s}
+.rb:hover{border-color:var(--accent);color:var(--accent)}
+.src{display:inline-flex;align-items:center;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase}
+.s-naukri{background:rgba(255,91,0,.13);color:#ff5b00}
+.s-linkedin{background:rgba(0,119,181,.12);color:#0077b5}
+.s-indeed{background:rgba(0,112,255,.12);color:#3a8bff}
+.s-glassdoor{background:rgba(0,163,103,.12);color:#00a367}
+.s-foundit{background:rgba(220,53,69,.12);color:#dc3545}
+.s-shine{background:rgba(255,182,0,.12);color:#b38000}
+.s-wellfound{background:rgba(102,51,204,.12);color:#6633cc}
+.s-google{background:rgba(234,67,53,.12);color:#ea4335}
+.s-iimjobs{background:rgba(155,50,200,.12);color:#9b32c8}
+.s-cutshort{background:rgba(0,82,204,.12);color:#0052cc}
+.s-instahyre{background:rgba(0,176,116,.12);color:#00b074}
+.s-hirist{background:rgba(20,180,200,.12);color:#14b4c8}
+.s-freshersworld{background:rgba(255,140,0,.12);color:#e07000}
+.s-timesjobs{background:rgba(200,0,0,.12);color:#c80000}
+.s-apna{background:rgba(0,150,255,.12);color:#0096ff}
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:15px;margin-bottom:11px;box-shadow:var(--shadow)}
+.shd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:9px}
+.sj{font-size:13px;font-weight:700;color:var(--text)}.sc2{font-size:11px;color:var(--muted);margin-top:2px}
+.ms{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--accent2)}
+.ml{font-size:9px;color:var(--muted);text-align:right;text-transform:uppercase;letter-spacing:.4px}
+.tips{list-style:none;display:flex;flex-direction:column;gap:5px}
+.tips li{display:flex;align-items:flex-start;gap:6px;font-size:11px;color:var(--sub);line-height:1.5}
+.tips li::before{content:'→';color:var(--accent);flex-shrink:0;margin-top:1px}
+.skill-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.skill-tag{background:rgba(0,194,255,.08);border:1px solid rgba(0,194,255,.18);border-radius:4px;padding:2px 7px;font-size:10px;color:var(--accent);font-weight:600}
+/* WALK-IN */
+.wcard{background:var(--surface);border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:15px;margin-bottom:11px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.wcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--walkin),#60a5fa)}
+.wbadge{display:inline-flex;align-items:center;gap:5px;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.3);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:var(--walkin);margin-bottom:10px}
+.wdate{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--walkin)}
+.wtime{font-size:11px;color:var(--muted);margin-top:2px}
+.wloc{display:flex;align-items:flex-start;gap:6px;font-size:11px;color:var(--sub);margin-top:6px;line-height:1.5}
+.wskills{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.wsk{background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);border-radius:4px;padding:2px 7px;font-size:10px;color:var(--walkin)}
+.walkin-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px}
+.wsc{background:var(--surface);border:1px solid rgba(167,139,250,.2);border-radius:11px;padding:12px;text-align:center}
+.wsv{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--walkin);line-height:1;margin-bottom:3px}
+/* SOURCE VERIFICATION BOX */
+.src-verify{background:rgba(0,255,157,.04);border:1px solid rgba(0,255,157,.18);border-radius:8px;padding:10px 13px;margin-top:10px}
+.src-verify-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--accent2);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.src-verify-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--sub);margin-bottom:4px}
+.src-verify-row:last-child{margin-bottom:0}
+.src-link{color:var(--accent);text-decoration:none;font-weight:600;font-size:11px;word-break:break-all}
+.src-link:hover{text-decoration:underline}
+.src-confidence{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700}
+.conf-high{background:rgba(0,255,157,.12);color:var(--accent2)}
+.conf-med{background:rgba(255,107,53,.12);color:var(--accent3)}
+.conf-ai{background:rgba(167,139,250,.12);color:var(--walkin)}
+/* COUNTDOWN */
+.countdown-box{display:inline-flex;align-items:center;gap:6px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);border-radius:7px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--walkin);margin-top:6px}
+.countdown-val{font-family:'Syne',sans-serif;font-size:13px}
+/* DISCLAIMER */
+.disclaimer{background:rgba(255,107,53,.05);border:1px solid rgba(255,107,53,.2);border-radius:8px;padding:10px 13px;font-size:10px;color:var(--muted);margin-bottom:14px;line-height:1.7}
+.disclaimer strong{color:var(--accent3)}
+.gs{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--border)}.gs:last-child{border-bottom:none}
+.gn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,rgba(0,194,255,.14),rgba(0,255,157,.07));border:1px solid rgba(0,194,255,.22);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:var(--accent);flex-shrink:0}
+.gc h4{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;margin-bottom:4px;color:var(--text)}.gc p{font-size:11px;color:var(--muted);line-height:1.7}
+.code{background:var(--log-bg);border:1px solid var(--border);border-radius:7px;padding:10px 13px;font-family:'Courier New',monospace;font-size:10.5px;color:var(--accent2);margin-top:8px;overflow-x:auto;white-space:pre;line-height:1.6}
+[data-theme="light"] .code{color:#00954e}
+.hrb{display:flex;flex-direction:column;gap:1px}
+.hrn{font-size:11px;font-weight:700;color:var(--text)}.hrr{font-size:10px;color:var(--muted)}.hre{font-size:10px;color:var(--accent);word-break:break-all}
+.empty{text-align:center;padding:36px 18px;color:var(--muted)}
+.empty .ei{font-size:32px;margin-bottom:8px}.empty h3{font-family:'Syne',sans-serif;font-size:13px;margin-bottom:4px;color:var(--text)}.empty p{font-size:11px}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:11px 15px;font-size:12px;display:flex;align-items:center;gap:8px;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;max-width:300px;color:var(--text);box-shadow:var(--shadow)}
+.toast.show{transform:translateY(0);opacity:1}.toast.ok{border-color:rgba(0,255,157,.35)}.toast.err{border-color:rgba(255,71,87,.35)}
+.mov{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:900;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}.mov.open{display:flex}
+.modal{background:var(--modal-bg);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:560px;width:92%;box-shadow:0 24px 60px rgba(0,0,0,.4)}
+.modal h3{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:10px;color:var(--text)}
+.mbtns{display:flex;gap:9px;justify-content:flex-end;margin-top:16px}
+.mclose{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer}
+.mok{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:8px;padding:7px 16px;color:#090e1c;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer}
+.sov{position:fixed;inset:0;background:rgba(9,14,28,.72);z-index:800;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;backdrop-filter:blur(3px)}.sov.show{display:flex}
+.sc3{width:46px;height:46px;border:3px solid rgba(0,194,255,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+.sm{font-family:'Syne',sans-serif;font-size:13px;color:var(--accent)}
+.info-box{background:rgba(0,194,255,.06);border:1px solid rgba(0,194,255,.15);border-radius:8px;padding:9px 12px;font-size:10px;color:var(--muted);margin-top:9px;line-height:1.6}
+.info-box.walkin-ib{background:rgba(167,139,250,.06);border-color:rgba(167,139,250,.2)}
+.cred-saved-banner{background:rgba(0,255,157,.06);border:1px solid rgba(0,255,157,.2);border-radius:8px;padding:7px 12px;font-size:11px;color:var(--accent2);margin-top:7px;display:none;align-items:center;gap:7px}
+.cred-saved-banner.show{display:flex}
+/* GEMINI KEY BANNER */
+.gemini-banner{background:rgba(234,67,53,.06);border:1px solid rgba(234,67,53,.2);border-radius:8px;padding:8px 12px;font-size:11px;color:#ea4335;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.gemini-ok{background:rgba(0,255,157,.06);border-color:rgba(0,255,157,.2);color:var(--accent2)}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+@media(max-width:920px){.mg{grid-template-columns:1fr}.cfg-row{grid-template-columns:1fr 1fr}.stats{grid-template-columns:repeat(2,1fr)}.pg{grid-template-columns:repeat(2,1fr)}.cfg-sheet{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.cfg-row{grid-template-columns:1fr}.cfg-sheet{grid-template-columns:1fr}.ebtn{width:100%;justify-content:center}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="logo">
+    <div class="lico">🤖</div>
+    <div>
+      <div class="lname">JOB <span>Agent</span> AI <span style="font-size:11px;background:rgba(0,255,157,.12);border:1px solid rgba(0,255,157,.25);border-radius:5px;padding:2px 7px;color:var(--accent2);font-weight:700">v3</span></div>
+      <div class="lsub">15 Portal Search Links · Gemini AI Suggestions · Walk-in Drive Tracker</div>
+    </div>
+  </div>
+  <div class="hr">
+    <div class="live-clock">
+      <div>
+        <div class="clock-time" id="clockTime">--:--:--</div>
+        <div class="clock-day" id="clockDay">---</div>
+      </div>
+      <div style="width:1px;height:28px;background:var(--border)"></div>
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--text)" id="clockDate">-- --- ----</div>
+        <div style="font-size:9px;color:var(--muted)" id="clockTZ">IST</div>
+      </div>
+    </div>
+    <div class="pill"><div class="dot"></div><span id="agentSt">Ready</span></div>
+    <div class="tw" onclick="toggleTheme()">
+      <span class="ti" id="tIcon">🌙</span>
+      <div class="tog"></div>
+    </div>
+  </div>
+</header>
+
+<!-- CONFIG -->
+<div class="cfg">
+  <div id="geminiBanner" class="gemini-banner">⚠️ Gemini API key not set — AI suggestions & walk-in search will use fallback. Enter your key below.</div>
+  <div class="cfg-row">
+    <div class="fg"><div class="fl">🔍 Job Role</div><input class="fi" id="role" placeholder="e.g. SAP SD Consultant, React Developer..."/></div>
+    <div class="fg"><div class="fl">📍 Location</div><input class="fi" id="loc" placeholder="e.g. Bengaluru, Mumbai, Hyderabad, Remote..."/></div>
+    <div class="fg"><div class="fl">🎯 Experience (Years)</div><input class="fi" id="exp" placeholder="e.g. 3"/></div>
+  </div>
+  <div class="cfg-row" style="margin-bottom:0">
+    <div class="fg">
+      <div class="fl">🤖 Gemini API Key</div>
+      <div style="display:flex;gap:8px">
+        <input class="fi" id="geminiKey" type="password" placeholder="AIzaSy...  (from aistudio.google.com)"/>
+        <button class="sbtn g" onclick="saveGeminiKey()" style="white-space:nowrap">💾 Save Key</button>
+      </div>
+    </div>
+    <div class="fg">
+      <div class="fl">📊 Apps Script Web App URL <span style="color:var(--accent3);text-transform:none;letter-spacing:0">(optional)</span></div>
+      <div style="display:flex;gap:8px">
+        <input class="fi" id="sheetUrl" placeholder="https://script.google.com/macros/s/YOUR_ID/exec"/>
+        <button class="sbtn" onclick="openGuide()">⚙ Setup</button>
+        <button class="sbtn g" onclick="testSheet()">✔ Test</button>
+      </div>
+    </div>
+    <div class="fg">
+      <div class="fl">📋 Google Sheet URL <span style="color:var(--accent3);text-transform:none;letter-spacing:0">(optional)</span></div>
+      <div style="display:flex;gap:8px">
+        <input class="fi" id="googleSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/..."/>
+        <button class="sbtn pu" onclick="saveCredentials()">💾 Save</button>
+        <button class="sbtn r" onclick="clearCredentials()">🗑</button>
+      </div>
+    </div>
+  </div>
+  <div class="cred-saved-banner" id="credBanner">✅ Credentials loaded from saved storage — ready to execute!</div>
+  <div class="cfg-actions">
+    <button class="ebtn" id="eb" onclick="toggleExec()"><span id="ei">▶</span><span id="et">Execute Agent</span></button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="sw('agent',this)">🤖 Agent Control</button>
+  <button class="tab" onclick="sw('sugg',this)">💡 Suggestions</button>
+  <button class="tab" onclick="sw('db',this)">🗄️ Job Database</button>
+  <button class="tab walkin-tab" onclick="sw('walkin',this)">🚶 Walk-in Drives</button>
+  <button class="tab" onclick="sw('guide',this)">📖 Setup Guide</button>
+</div>
+
+<!-- AGENT PANEL -->
+<div class="panel active" id="panel-agent">
+  <div class="mg">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card">
+        <div class="ch"><div class="ci" style="background:rgba(0,194,255,.1)">📄</div><div class="ct">Resume / Profile</div></div>
+        <div class="cb">
+          <div class="uz" id="uz">
+            <input type="file" id="rf" accept=".pdf,.docx" onchange="onFU(this)">
+            <div style="font-size:24px;margin-bottom:6px">☁️</div>
+            <div class="ut">Drop Resume here</div><div class="us">PDF or DOCX · Max 10MB</div>
+          </div>
+          <div class="uf" id="uf"><span>📄</span><span class="fn" id="fn">–</span><button class="rmv" onclick="rmF()">✕</button></div>
+          <div class="pfs" style="margin-top:12px">
+            <div class="fl" style="margin-bottom:2px">Or fill manually</div>
+            <input class="pf" id="pN" placeholder="Full Name"/>
+            <input class="pf" id="pT" placeholder="Current Title / Target Role"/>
+            <input class="pf" id="pS" placeholder="Key Skills (comma-separated)"/>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ci" style="background:rgba(0,255,157,.1)">⚙️</div><div class="ct">Agent Workflow</div></div>
+        <div class="cb" style="padding-top:4px;padding-bottom:4px"><div class="stps" id="stps"></div></div>
+      </div>
+    </div>
+    <div class="rp">
+      <div class="stats">
+        <div class="sc"><div class="sv" id="sJ" style="color:var(--accent)">0</div><div class="sl2">Portals Searched</div></div>
+        <div class="sc"><div class="sv" id="sN" style="color:var(--accent2)">0</div><div class="sl2">Links Generated</div></div>
+        <div class="sc"><div class="sv" id="sD" style="color:var(--accent3)">0</div><div class="sl2">Suggestions</div></div>
+        <div class="sc"><div class="sv" id="sS" style="color:var(--walkin)">0</div><div class="sl2">Walk-ins</div></div>
+      </div>
+      <div class="prog">
+        <div class="ph"><span>Overall Progress</span><span id="pct" style="color:var(--accent)">0%</span></div>
+        <div class="pbg"><div class="pf2" id="pb" style="width:0%"></div></div>
+      </div>
+      <div class="card">
+        <div class="ch" style="justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:9px"><div class="ci" style="background:rgba(255,107,53,.1)">📟</div><div class="ct">Live Agent Log</div></div>
+          <button class="rb" onclick="clearLog()">🗑 Clear</button>
+        </div>
+        <div class="cb" style="padding:9px"><div class="log" id="logbox"></div></div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ci" style="background:rgba(0,194,255,.08)">🌐</div><div class="ct">Job Portals (15)</div></div>
+        <div class="cb">
+          <div class="pg">
+            <label class="pl"><input type="checkbox" checked id="p_naukri"> Naukri ⭐</label>
+            <label class="pl"><input type="checkbox" checked id="p_linkedin"> LinkedIn ⭐</label>
+            <label class="pl"><input type="checkbox" checked id="p_indeed"> Indeed</label>
+            <label class="pl"><input type="checkbox" checked id="p_glassdoor"> Glassdoor</label>
+            <label class="pl"><input type="checkbox" checked id="p_foundit"> Foundit</label>
+            <label class="pl"><input type="checkbox" checked id="p_shine"> Shine</label>
+            <label class="pl"><input type="checkbox" checked id="p_wellfound"> Wellfound</label>
+            <label class="pl"><input type="checkbox" checked id="p_google"> Google Jobs</label>
+            <label class="pl"><input type="checkbox" checked id="p_iimjobs"> IIMJobs</label>
+            <label class="pl"><input type="checkbox" checked id="p_cutshort"> Cutshort</label>
+            <label class="pl"><input type="checkbox" checked id="p_instahyre"> Instahyre</label>
+            <label class="pl"><input type="checkbox" checked id="p_hirist"> HiRist</label>
+            <label class="pl"><input type="checkbox" checked id="p_freshersworld"> Freshersworld</label>
+            <label class="pl"><input type="checkbox" checked id="p_timesjobs"> TimesJobs</label>
+            <label class="pl"><input type="checkbox" checked id="p_apna"> Apna</label>
+          </div>
+          <div class="info-box">🔗 Each portal generates a <strong style="color:var(--accent)">real filtered search URL</strong> with your exact role, location & experience pre-filled. Click "Apply ↗" to open that portal's live results page directly.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUGGESTIONS PANEL -->
+<div class="panel" id="panel-sugg">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--text)">Resume Suggestions</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">Gemini AI — tailored per-portal advice with skills, certifications & keywords</div>
+    </div>
+    <div id="sCnt" style="font-size:11px;color:var(--muted)">0 suggestions</div>
+  </div>
+  <div id="sCon"><div class="empty"><div class="ei">💡</div><h3>No Suggestions Yet</h3><p>Run the agent first.</p></div></div>
+</div>
+
+<!-- DB PANEL -->
+<div class="panel" id="panel-db">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--text)">Job Database</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">Real filtered search URLs — each link opens the portal with your exact role, location & experience pre-filled</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <span id="sync" style="font-size:11px;color:var(--muted)">Not synced</span>
+      <button class="rb" onclick="refDb()">↻ Refresh</button>
+      <button class="rb" onclick="expCSV()" style="color:var(--accent2);border-color:rgba(0,255,157,.3)">⬇ Export CSV</button>
+      <button class="rb" onclick="pushSheet()" style="color:var(--accent);border-color:rgba(0,194,255,.3)">📊 Push to Sheet</button>
+    </div>
+  </div>
+  <div class="dbw">
+    <table>
+      <thead><tr>
+        <th>#</th><th>Portal</th><th>Search Query</th>
+        <th>Experience Filter</th><th>Location Filter</th>
+        <th>Search Link</th><th>Generated At</th><th>Status</th>
+      </tr></thead>
+      <tbody id="dbB"><tr><td colspan="8"><div class="empty" style="padding:28px"><div class="ei">🗄️</div><h3>Database Empty</h3><p>Run the agent to generate portal search links.</p></div></td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- WALK-IN PANEL -->
+<div class="panel" id="panel-walkin">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--text)">🚶 Walk-in Drives</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">AI-generated walk-in search links + verification sources — always verify before attending</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <div style="font-size:11px;color:var(--muted);font-family:'Syne',sans-serif" id="walkinClock"></div>
+      <button class="rb" onclick="fetchWalkins()" style="color:var(--walkin);border-color:rgba(167,139,250,.3)">🔄 Refresh Walk-ins</button>
+      <button class="rb" onclick="expWalkinsCSV()" style="color:var(--accent2);border-color:rgba(0,255,157,.3)">⬇ Export CSV</button>
+    </div>
+  </div>
+  <div class="disclaimer">
+    <strong>⚠️ Important — How Walk-in Data Works:</strong> Walk-in drives are <strong>AI-suggested</strong> based on your role, location and experience using Gemini. Each card shows a <strong>verification source link</strong> (Naukri/LinkedIn/Google search) — always click it to confirm the drive is real before attending. AI may occasionally generate plausible-but-unverified venues. The source link is your ground truth.
+  </div>
+  <div class="walkin-stats">
+    <div class="wsc"><div class="wsv" id="wTotal">0</div><div class="sl2">Total Walk-ins</div></div>
+    <div class="wsc"><div class="wsv" id="wThisWeek" style="color:var(--accent2)">0</div><div class="sl2">This Week</div></div>
+    <div class="wsc"><div class="wsv" id="wCities" style="color:var(--accent)">0</div><div class="sl2">Cities</div></div>
+  </div>
+  <div id="walkinCon"><div class="empty"><div class="ei">🚶</div><h3>No Walk-in Drives Yet</h3><p>Run the agent or click "Refresh Walk-ins".</p></div></div>
+</div>
+
+<!-- GUIDE PANEL -->
+<div class="panel" id="panel-guide">
+  <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:4px;color:var(--text)">Setup Guide</div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:20px">How to use JOB Agent AI v3 effectively</div>
+  <div class="card"><div class="cb" style="padding:4px 20px">
+    <div class="gs">
+      <div class="gn">1</div>
+      <div class="gc"><h4>Get Your Free Gemini API Key</h4>
+      <p>Go to <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com/apikey</a> → Sign in with Google → Create API Key → Copy it. It's <strong style="color:var(--accent2)">completely free</strong> with 1500 requests/day. Paste it in the Gemini API Key field above and click Save Key.</p></div>
+    </div>
+    <div class="gs">
+      <div class="gn">2</div>
+      <div class="gc"><h4>Fill Role, Location, Experience</h4>
+      <p>Enter your target job role (e.g. "SAP SD Consultant"), location (e.g. "Bengaluru"), and years of experience. These are used to build precise filtered search URLs for all 15 portals and for AI suggestions.</p></div>
+    </div>
+    <div class="gs">
+      <div class="gn">3</div>
+      <div class="gc"><h4>Click Execute Agent</h4>
+      <p>The agent will: (1) Generate real filtered URLs for all 15 portals, (2) Use Gemini AI to generate tailored resume suggestions per portal, (3) Search for upcoming walk-in drives with verification links, (4) Optionally push everything to Google Sheets.</p></div>
+    </div>
+    <div class="gs">
+      <div class="gn">4</div>
+      <div class="gc"><h4>Understanding Walk-in Sources</h4>
+      <p>Each walk-in card shows a <strong style="color:var(--accent2)">🔍 Verify Source</strong> link — this opens a real Naukri/LinkedIn/Google search for that company's walk-in. Always verify before attending. The AI suggests based on patterns; the source link confirms reality.</p></div>
+    </div>
+    <div class="gs">
+      <div class="gn">5</div>
+      <div class="gc"><h4>Google Sheets (Optional)</h4>
+      <p>To export to Google Sheets: Create a sheet → Extensions → Apps Script → paste the script below → Deploy as Web App (Execute as: Me, Access: Anyone) → copy URL to config above.</p>
+      <div class="code">function doPost(e) {
+  try {
+    var sheetUrl = e.parameter.sheetUrl;
+    var action   = e.parameter.action;
+    var ss = SpreadsheetApp.openByUrl(sheetUrl);
+    var sh = ss.getActiveSheet();
+    if (action === 'init') {
+      sh.clearContents();
+      var headers = ['#','Portal','Search Query','Experience','Location','Search URL','Generated At','Status'];
+      sh.appendRow(headers);
+      var hRange = sh.getRange(1, 1, 1, headers.length);
+      hRange.setFontWeight('bold');
+      hRange.setBackground('#0a0f1e');
+      hRange.setFontColor('#00c2ff');
+      sh.setFrozenRows(1);
+      return ContentService.createTextOutput(JSON.stringify({ok:true})).setMimeType(ContentService.MimeType.JSON);
+    }
+    if (action === 'push') {
+      var rows = JSON.parse(e.parameter.rows);
+      rows.forEach(function(r){ sh.appendRow(r); });
+      return ContentService.createTextOutput(JSON.stringify({ok:true,msg:rows.length+' rows added'})).setMimeType(ContentService.MimeType.JSON);
+    }
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({ok:false,msg:err.message})).setMimeType(ContentService.MimeType.JSON);
+  }
+}</div></div>
+    </div>
+    <div class="gs" style="border:none">
+      <div class="gn">📌</div>
+      <div class="gc"><h4>Tips</h4>
+      <p>• All 15 portal links are real filtered searches — they open live results<br>• Walk-in drives: always verify using the source link before attending<br>• Gemini key is saved in browser storage — loads automatically next visit<br>• Export CSV works without any setup<br>• Use the live clock in the header to track walk-in timing</p></div>
+    </div>
+  </div></div>
+</div>
+
+</div>
+
+<div class="sov" id="sov"><div class="sc3"></div><div class="sm" id="sm">Processing...</div></div>
+<div class="toast" id="toast"><span id="tMsg">Done</span></div>
+<div class="mov" id="modal">
+  <div class="modal">
+    <h3>📊 Google Sheet — Quick Setup</h3>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Follow the Setup Guide tab for full instructions. Quick version:</p>
+    <ol style="padding-left:18px;display:flex;flex-direction:column;gap:8px">
+      <li style="font-size:12px;color:var(--sub)">Open Google Sheet → <strong style="color:var(--accent)">Extensions → Apps Script</strong></li>
+      <li style="font-size:12px;color:var(--sub)">Paste the script from Setup Guide → Step 5</li>
+      <li style="font-size:12px;color:var(--sub)"><strong style="color:var(--accent)">Deploy → Web App</strong> — Execute as: Me, Access: <strong style="color:var(--accent2)">Anyone</strong></li>
+      <li style="font-size:12px;color:var(--sub)">Copy Web App URL → paste in config</li>
+    </ol>
+    <div class="mbtns">
+      <button class="mclose" onclick="closeM()">Close</button>
+      <button class="mok" onclick="closeM();sw('guide',document.querySelectorAll('.tab')[4])">Open Full Guide →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── GEMINI KEY ────────────────────────────────────────────────
+const GEMINI_KEY_STORE = 'jobagent_gemini_key_v3';
+const CRED_KEY = 'jobagent_credentials_v3';
+
+// NOTE: API key is pre-filled from user's provided key
+const DEFAULT_GEMINI_KEY = '';
+
+function getGeminiKey(){
+  return localStorage.getItem(GEMINI_KEY_STORE) || document.getElementById('geminiKey').value.trim() || DEFAULT_GEMINI_KEY;
+}
+
+function saveGeminiKey(){
+  const k = document.getElementById('geminiKey').value.trim() || DEFAULT_GEMINI_KEY;
+  if(!k){ toast('⚠️ Enter your Gemini API key','e'); return; }
+  localStorage.setItem(GEMINI_KEY_STORE, k);
+  toast('✅ Gemini API key saved!','ok');
+  log('Gemini API key saved.','s');
+  updateGeminiBanner();
+}
+
+function updateGeminiBanner(){
+  const k = getGeminiKey();
+  const b = document.getElementById('geminiBanner');
+  if(k){ b.className='gemini-banner gemini-ok'; b.textContent='✅ Gemini API key active — AI suggestions & walk-in search enabled!'; }
+  else { b.className='gemini-banner'; b.textContent='⚠️ Gemini API key not set — AI suggestions & walk-in search will use fallback.'; }
+}
+
+// ── CREDENTIALS ───────────────────────────────────────────────
+function saveCredentials(){
+  const c = {
+    scriptUrl: document.getElementById('sheetUrl').value.trim(),
+    sheetUrl:  document.getElementById('googleSheetUrl').value.trim(),
+    role: document.getElementById('role').value.trim(),
+    loc:  document.getElementById('loc').value.trim(),
+    exp:  document.getElementById('exp').value.trim()
+  };
+  localStorage.setItem(CRED_KEY, JSON.stringify(c));
+  toast('✅ Credentials saved!','ok');
+  log('Credentials saved.','s');
+  document.getElementById('credBanner').classList.add('show');
+}
+
+function clearCredentials(){
+  localStorage.removeItem(CRED_KEY);
+  localStorage.removeItem(GEMINI_KEY_STORE);
+  ['sheetUrl','googleSheetUrl','geminiKey'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('credBanner').classList.remove('show');
+  toast('🗑 All credentials cleared.','ok');
+}
+
+function loadCredentials(){
+  try{
+    // Load Gemini key
+    const gk = localStorage.getItem(GEMINI_KEY_STORE);
+    if(gk) document.getElementById('geminiKey').value = gk;
+    else document.getElementById('geminiKey').value = DEFAULT_GEMINI_KEY;
+
+    // Load other creds
+    const raw = localStorage.getItem(CRED_KEY);
+    if(raw){
+      const c = JSON.parse(raw);
+      if(c.scriptUrl) document.getElementById('sheetUrl').value = c.scriptUrl;
+      if(c.sheetUrl)  document.getElementById('googleSheetUrl').value = c.sheetUrl;
+      if(c.role) document.getElementById('role').value = c.role;
+      if(c.loc)  document.getElementById('loc').value = c.loc;
+      if(c.exp)  document.getElementById('exp').value = c.exp;
+      document.getElementById('credBanner').classList.add('show');
+    }
+    updateGeminiBanner();
+  }catch(e){}
+}
+
+// ── LIVE CLOCK ────────────────────────────────────────────────
+function startClock(){
+  function tick(){
+    const now = new Date();
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    document.getElementById('clockTime').textContent = `${h}:${m}:${s}`;
+    document.getElementById('clockDay').textContent = days[now.getDay()];
+    document.getElementById('clockDate').textContent = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+    // Update walkin tab clock too
+    const wc = document.getElementById('walkinClock');
+    if(wc) wc.textContent = `🕐 Now: ${h}:${m} · ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  }
+  tick(); setInterval(tick, 1000);
+}
+
+// ── THEME ─────────────────────────────────────────────────────
+function toggleTheme(){
+  const h=document.documentElement,d=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',d?'light':'dark');
+  document.getElementById('tIcon').textContent=d?'☀️':'🌙';
+}
+
+// ── STEPS ─────────────────────────────────────────────────────
+const STEPS=[
+  {n:'Profile Loaded',d:'Resume or manual profile ready',i:'📄'},
+  {n:'Agent Triggered',d:'Params validated, portals ready',i:'⚡'},
+  {n:'Generating Portal Links',d:'15 real filtered search URLs built',i:'🌐'},
+  {n:'Gemini AI Suggestions',d:'Tailored resume tips per portal',i:'💡'},
+  {n:'Walk-in Drive Search',d:'Finding upcoming walk-in events',i:'🚶'},
+  {n:'Writing to Sheet',d:'Pushing data to Google Sheets',i:'📊'},
+];
+
+(function(){
+  document.getElementById('stps').innerHTML=STEPS.map((s,i)=>`<div class="stp" id="s${i}"><div class="sn2">${i+1}</div><div class="si"><div class="snm">${s.i} ${s.n}</div><div class="sd">${s.d}</div></div><div class="ss" id="ss${i}">Pending</div></div>`).join('');
+  document.getElementById('logbox').innerHTML='<div class="le"><span class="lt">00:00:00</span><span class="li2">Ready — enter Job Role, Location, Experience then click Execute.</span></div>';
+  loadCredentials();
+  startClock();
+  // Pre-fill default key if nothing stored
+    updateGeminiBanner();
+})();
+
+function setS(i,st){
+  const el=document.getElementById('s'+i),ss=document.getElementById('ss'+i);
+  if(!el)return;el.classList.remove('active','done');
+  if(st==='active'){el.classList.add('active');ss.innerHTML='<span class="sp">⟳</span> Running';}
+  else if(st==='done'){el.classList.add('done');ss.textContent='✓ Done';}
+  else ss.textContent='Pending';
+}
+function resetS(){STEPS.forEach((_,i)=>setS(i,''));}
+
+// ── TABS ──────────────────────────────────────────────────────
+function sw(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+}
+
+// ── FILE ──────────────────────────────────────────────────────
+function onFU(inp){if(inp.files&&inp.files[0]){const f=inp.files[0];document.getElementById('fn').textContent=f.name;document.getElementById('uf').style.display='flex';log('Resume: '+f.name,'s');setS(0,'done');}}
+function rmF(){document.getElementById('rf').value='';document.getElementById('uf').style.display='none';setS(0,'');}
+const uzEl=document.getElementById('uz');
+uzEl.addEventListener('dragover',e=>{e.preventDefault();uzEl.classList.add('ov')});
+uzEl.addEventListener('dragleave',()=>uzEl.classList.remove('ov'));
+uzEl.addEventListener('drop',e=>{e.preventDefault();uzEl.classList.remove('ov');const f=e.dataTransfer.files[0];if(f){document.getElementById('fn').textContent=f.name;document.getElementById('uf').style.display='flex';log('Dropped: '+f.name,'s');setS(0,'done');}});
+
+// ── MODAL ─────────────────────────────────────────────────────
+function openGuide(){document.getElementById('modal').classList.add('open');}
+function closeM(){document.getElementById('modal').classList.remove('open');}
+
+// ── TEST SHEET ────────────────────────────────────────────────
+async function testSheet(){
+  const url=document.getElementById('sheetUrl').value.trim();
+  if(!url){toast('⚠️ Paste your Apps Script Web App URL first','e');return;}
+  log('Testing sheet connection...','i');
+  try{await fetch(url,{method:'GET',mode:'no-cors'});toast('✅ URL reachable — run agent to fully verify.','ok');log('Connection test passed.','s');}
+  catch(e){toast('⚠️ Check deployment settings.','e');}
+}
+
+// ── 15 PORTALS CONFIG ─────────────────────────────────────────
+const PORTAL_CONFIG = {
+  naukri: {
+    name: 'Naukri',
+    color: 's-naukri',
+    buildUrl: (role, loc, exp) => {
+      const expN = parseInt(exp)||0;
+      const slug = role.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-+/g,'-');
+      const locSlug = loc.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+      const expParam = expN ? `?experience=${Math.max(0,expN-1)},${expN+2}&` : '?';
+      return `https://www.naukri.com/${slug}-jobs-in-${locSlug}${expParam}`;
+    }
+  },
+  linkedin: {
+    name: 'LinkedIn',
+    color: 's-linkedin',
+    buildUrl: (role, loc, exp) => {
+      const expN = parseInt(exp)||0;
+      // LinkedIn experience levels: 2=Entry, 3=Associate, 4=Mid-Senior, 5=Director
+      const lvl = expN <= 1 ? '2' : expN <= 3 ? '3' : expN <= 7 ? '4' : '5';
+      return `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(role)}&location=${encodeURIComponent(loc)}&f_E=${lvl}&f_TPR=r604800`;
+    }
+  },
+  indeed: {
+    name: 'Indeed',
+    color: 's-indeed',
+    buildUrl: (role, loc, exp) => {
+      const expN = parseInt(exp)||0;
+      const lvl = expN <= 1 ? 'entry_level' : expN <= 4 ? 'mid_level' : 'senior_level';
+      return `https://in.indeed.com/jobs?q=${encodeURIComponent(role)}&l=${encodeURIComponent(loc)}&explvl=${lvl}&fromage=14`;
+    }
+  },
+  glassdoor: {
+    name: 'Glassdoor',
+    color: 's-glassdoor',
+    buildUrl: (role, loc) => `https://www.glassdoor.co.in/Job/jobs.htm?sc.keyword=${encodeURIComponent(role)}&locT=C&locKeyword=${encodeURIComponent(loc)}&fromAge=14`
+  },
+  foundit: {
+    name: 'Foundit',
+    color: 's-foundit',
+    buildUrl: (role, loc, exp) => {
+      const expN = parseInt(exp)||0;
+      return `https://www.foundit.in/srp/results?query=${encodeURIComponent(role)}&location=${encodeURIComponent(loc)}&experienceRanges=${Math.max(0,expN-1)}~${expN+2}`;
+    }
+  },
+  shine: {
+    name: 'Shine',
+    color: 's-shine',
+    buildUrl: (role, loc) => {
+      const slug = role.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+      const locSlug = loc.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+      return `https://www.shine.com/job-search/${slug}-jobs-in-${locSlug}`;
+    }
+  },
+  wellfound: {
+    name: 'Wellfound',
+    color: 's-wellfound',
+    buildUrl: (role) => {
+      const slug = role.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+      return `https://wellfound.com/role/r/${slug}`;
+    }
+  },
+  google: {
+    name: 'Google Jobs',
+    color: 's-google',
+    buildUrl: (role, loc) => `https://www.google.com/search?q=${encodeURIComponent(role+' jobs in '+loc)}&ibp=htl;jobs`
+  },
+  iimjobs: {
+    name: 'IIMJobs',
+    color: 's-iimjobs',
+    buildUrl: (role, loc) => `https://www.iimjobs.com/j/search?words=${encodeURIComponent(role)}&location=${encodeURIComponent(loc)}`
+  },
+  cutshort: {
+    name: 'Cutshort',
+    color: 's-cutshort',
+    buildUrl: (role) => {
+      const slug = role.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+      return `https://cutshort.io/jobs/${slug}`;
+    }
+  },
+  instahyre: {
+    name: 'Instahyre',
+    color: 's-instahyre',
+    buildUrl: (role, loc) => `https://www.instahyre.com/search/?search_query=${encodeURIComponent(role)}&location=${encodeURIComponent(loc)}`
+  },
+  hirist: {
+    name: 'HiRist',
+    color: 's-hirist',
+    buildUrl: (role) => `https://hirist.tech/search?q=${encodeURIComponent(role)}`
+  },
+  freshersworld: {
+    name: 'Freshersworld',
+    color: 's-freshersworld',
+    buildUrl: (role, loc) => `https://www.freshersworld.com/jobs/jobsearch/${encodeURIComponent(role)}-jobs-in-${loc.toLowerCase().replace(/\s+/g,'-')}`
+  },
+  timesjobs: {
+    name: 'TimesJobs',
+    color: 's-timesjobs',
+    buildUrl: (role, loc) => `https://www.timesjobs.com/candidate/job-search.html?searchType=personalizedSearch&from=submit&txtKeywords=${encodeURIComponent(role)}&txtLocation=${encodeURIComponent(loc)}`
+  },
+  apna: {
+    name: 'Apna',
+    color: 's-apna',
+    buildUrl: (role, loc) => `https://apna.co/jobs?designation=${encodeURIComponent(role)}&location=${encodeURIComponent(loc)}`
+  }
+};
+
+function getSelectedPortals(){
+  return Object.keys(PORTAL_CONFIG).filter(p => document.getElementById('p_'+p)?.checked);
+}
+
+function buildPortalJobs(role, loc, exp){
+  const now = new Date();
+  const ts = now.toLocaleString('en-IN', {timeZone:'Asia/Kolkata'});
+  return getSelectedPortals().map((p, i) => {
+    const cfg = PORTAL_CONFIG[p];
+    const url = cfg.buildUrl(role, loc, exp);
+    const expN = parseInt(exp)||0;
+    return {
+      serial: i+1,
+      portal: cfg.name,
+      portalKey: p,
+      color: cfg.color,
+      role,
+      loc,
+      exp: expN ? `${Math.max(0,expN-1)}-${expN+2} years` : 'Any',
+      applyUrl: url,
+      generatedAt: ts,
+      isNew: true
+    };
+  });
+}
+
+// ── EXECUTE ───────────────────────────────────────────────────
+let running=false, jobDb=[], walkinDb=[], simT=null;
+function toggleExec(){running?stopExec():startExec();}
+function stopExec(){running=false;clearTimeout(simT);setEB(false);log('Agent stopped.','w');document.getElementById('agentSt').textContent='Ready';}
+function setEB(r){const b=document.getElementById('eb');b.classList.toggle('run',r);document.getElementById('ei').textContent=r?'■':'▶';document.getElementById('et').textContent=r?'Stop Agent':'Execute Agent';}
+
+async function startExec(){
+  const role=document.getElementById('role').value.trim();
+  const loc=document.getElementById('loc').value.trim();
+  const exp=document.getElementById('exp').value.trim();
+  if(!role){toast('⚠️ Enter a job role','e');return;}
+  if(!loc){toast('⚠️ Enter a location','e');return;}
+  running=true;setEB(true);resetS();setP(0);clearStats();
+  document.getElementById('agentSt').textContent='Running...';
+  log('━━━ JOB Agent v3 started: "'+role+'" in '+loc+(exp?' · '+exp+' YOE':'')+' ━━━','i');
+
+  // Step 0: Profile
+  setS(0,'active');log('Loading profile...','i');await wait(400);setS(0,'done');setP(10);if(!running)return;
+
+  // Step 1: Validate
+  setS(1,'active');log('Validating search parameters — '+getSelectedPortals().length+' portals selected...','i');await wait(300);setS(1,'done');setP(20);if(!running)return;
+
+  // Step 2: Build portal links
+  setS(2,'active');
+  log('Building real filtered URLs for '+getSelectedPortals().length+' portals...','i');
+  await wait(600);
+  jobDb = buildPortalJobs(role, loc, exp);
+  stat('sJ', getSelectedPortals().length);
+  stat('sN', jobDb.length);
+  log('✅ Generated '+jobDb.length+' real portal search links','s');
+  jobDb.forEach(j => log('  → '+j.portal+': '+j.applyUrl.slice(0,60)+'...','s'));
+  setS(2,'done');setP(45);if(!running)return;
+
+  // Step 3: Gemini suggestions
+  setS(3,'active');
+  showSpinner('Generating AI resume suggestions with Gemini...');
+  const suggs = await genSuggGemini(jobDb, role, exp, loc);
+  hideSpinner();
+  renderSugg(suggs, jobDb);
+  stat('sD', suggs.length);
+  log(suggs.length+' AI suggestions generated','s');
+  setS(3,'done');setP(68);if(!running)return;
+
+  // Step 4: Walk-ins
+  setS(4,'active');
+  showSpinner('Searching walk-in drives with Gemini...');
+  walkinDb = await fetchWalkinsInternal(role, loc, exp);
+  hideSpinner();
+  stat('sS', walkinDb.length);
+  renderWalkins(walkinDb);
+  log(walkinDb.length+' walk-in drives found','s');
+  setS(4,'done');setP(85);if(!running)return;
+
+  // Step 5: Sheet push
+  setS(5,'active');
+  const scriptUrl=document.getElementById('sheetUrl').value.trim();
+  const sheetUrlVal=document.getElementById('googleSheetUrl').value.trim();
+  if(scriptUrl&&scriptUrl.includes('script.google.com')&&sheetUrlVal){
+    await doPushDirect(scriptUrl,sheetUrlVal,jobDb);
+  }else{log('No Sheet URLs set — skipping auto-push.','w');}
+  setS(5,'done');setP(100);
+
+  renderDb(jobDb);
+  document.getElementById('sync').textContent='Synced: '+new Date().toLocaleTimeString();
+  running=false;setEB(false);
+  document.getElementById('agentSt').textContent='Ready';
+  log('━━━ ✅ Done! '+jobDb.length+' portal links · '+walkinDb.length+' walk-ins ━━━','s');
+  toast('✅ '+jobDb.length+' portal links + '+walkinDb.length+' walk-ins ready!','ok');
+}
+
+// ── GEMINI AI SUGGESTIONS ─────────────────────────────────────
+async function genSuggGemini(jobs, role, exp, loc){
+  const key = getGeminiKey();
+  if(!key){ log('No Gemini key — using basic suggestions','w'); return basicSugg(jobs, role, exp, loc); }
+  try{
+    const profileName  = document.getElementById('pN').value.trim();
+    const profileTitle = document.getElementById('pT').value.trim();
+    const profileSkills= document.getElementById('pS').value.trim();
+    const profileCtx   = `Candidate: ${profileName||'Not provided'}. Target role: ${profileTitle||role}. Skills: ${profileSkills||'Not provided'}.`;
+
+    const prompt = `You are an expert resume coach. A job seeker wants to apply to multiple portals.
+${profileCtx}
+Role: ${role}. Experience: ${exp||'?'} years. Location: ${loc}.
+Portals they are applying to: ${jobs.map(j=>j.portal).join(', ')}.
+
+Return ONLY a valid JSON array — no markdown, no text outside the array. Generate one suggestion object per portal:
+[{
+  "portal": "portal name",
+  "matchScore": 75,
+  "keySkillsRequired": ["skill1","skill2","skill3"],
+  "tips": ["Tip 1 specific to this portal","Tip 2","Tip 3","Tip 4","Tip 5"],
+  "resumeHeadline": "Suggested resume headline for this role",
+  "mustHaveKeywords": ["keyword1","keyword2","keyword3"],
+  "gapAnalysis": "One sentence about what this portal's typical jobs require that candidate may be missing"
+}]
+Be specific. Reference real tools, certifications, and keywords for ${role} role.`;
+
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${key}`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        contents:[{parts:[{text: prompt}]}],
+        generationConfig:{temperature:0.7, maxOutputTokens:3000}
+      })
+    });
+    const data = await res.json();
+    if(data.error) throw new Error(data.error.message);
+    const txt = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+    const clean = txt.replace(/```json/gi,'').replace(/```/g,'').trim();
+    const s=clean.indexOf('['), e=clean.lastIndexOf(']');
+    if(s===-1||e===-1) throw new Error('No array');
+    const arr = JSON.parse(clean.slice(s,e+1));
+    return arr;
+  }catch(err){
+    log('Gemini suggestions error: '+err.message,'w');
+    return basicSugg(jobs, role, exp, loc);
+  }
+}
+
+function basicSugg(jobs, role, exp, loc){
+  return jobs.slice(0,8).map((j,i)=>({
+    portal: j.portal,
+    matchScore: [88,85,82,80,78,75,72,70][i]||68,
+    keySkillsRequired: [role.split(' ')[0], 'Communication', 'Problem Solving', 'MS Office', 'Team Work'],
+    tips: [
+      `Tailor your resume headline specifically for ${j.portal} — use keywords from active job postings`,
+      `On ${j.portal}, highlight measurable achievements — numbers get more recruiter attention`,
+      `Upload a PDF resume on ${j.portal} — it renders better than DOCX`,
+      `Set job alerts on ${j.portal} for "${role}" in ${loc} to get daily email notifications`,
+      `Complete your ${j.portal} profile 100% — profiles with photos get 3x more views`
+    ],
+    resumeHeadline: `${exp||'3'}+ Years ${role} | ${loc} | Open to Opportunities`,
+    mustHaveKeywords: [role, loc, exp ? exp+' years experience' : 'experienced'],
+    gapAnalysis: `Ensure your ${j.portal} profile explicitly mentions ${role} with years of experience for better search visibility.`
+  }));
+}
+
+// ── WALK-IN DRIVES WITH GEMINI ────────────────────────────────
+async function fetchWalkins(){
+  const role=document.getElementById('role').value.trim();
+  const loc=document.getElementById('loc').value.trim();
+  const exp=document.getElementById('exp').value.trim();
+  if(!role){toast('⚠️ Enter Job Role first','e');return;}
+  if(!loc){toast('⚠️ Enter Location first','e');return;}
+  showSpinner('Fetching walk-in drives...');
+  log('Fetching walk-in drives for "'+role+'" in '+loc+'...','i');
+  walkinDb = await fetchWalkinsInternal(role, loc, exp);
+  hideSpinner();
+  renderWalkins(walkinDb);
+  stat('sS', walkinDb.length);
+  log(walkinDb.length+' walk-in drives found','s');
+  toast('✅ '+walkinDb.length+' walk-in drives found!','ok');
+  sw('walkin', document.querySelectorAll('.tab')[3]);
+}
+
+async function fetchWalkinsInternal(role, loc, exp){
+  const key = getGeminiKey();
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0,10);
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+  if(!key){ log('No Gemini key — generating sample walk-ins','w'); return sampleWalkins(role, loc, exp); }
+
+  try{
+    const prompt = `You are a job search assistant. Generate realistic upcoming walk-in drive entries for "${role}" jobs in "${loc}".
+Today is ${todayStr}.
+
+CRITICAL: Return ONLY a raw JSON array. No markdown. No text outside array.
+Generate 5-7 walk-in drive entries:
+[{
+  "company": "Real company name that commonly hires ${role} in ${loc}",
+  "role": "${role}",
+  "date": "YYYY-MM-DD (must be 3-30 days after ${todayStr})",
+  "dateDisplay": "e.g. Monday, 12 May 2025",
+  "time": "e.g. 10:00 AM - 5:00 PM",
+  "venue": "Realistic office address in ${loc} — building, street, area, pincode",
+  "exp": "${exp||'2-4'} years",
+  "skills": ["skill1","skill2","skill3"],
+  "salary": "e.g. 4-7 LPA or Competitive",
+  "jobType": "Full-time",
+  "contactPerson": "HR contact name and phone or 'Check company careers page'",
+  "notes": "e.g. Carry 3 copies of resume, Aadhar, passport photo",
+  "confidence": "high/medium/low",
+  "verifySearchQuery": "exact search query to verify this walk-in on Google e.g. '${role} walk-in drive CompanyName ${loc} ${today.getFullYear()}'"
+}]
+Use real companies known to hire ${role} in ${loc}. Confidence: high = well-known companies with regular drives, medium = likely, low = possible.`;
+
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${key}`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        contents:[{parts:[{text: prompt}]}],
+        generationConfig:{temperature:0.8, maxOutputTokens:2500}
+      })
+    });
+    const data = await res.json();
+    if(data.error) throw new Error(data.error.message);
+    const txt = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+    const clean = txt.replace(/```json/gi,'').replace(/```/g,'').trim();
+    const s=clean.indexOf('['), e=clean.lastIndexOf(']');
+    if(s===-1||e===-1) throw new Error('No array');
+    const arr = JSON.parse(clean.slice(s,e+1));
+    // Build verification URLs for each
+    return arr.map(w => addVerificationLinks(w, role, loc));
+  }catch(err){
+    log('Walk-in Gemini error: '+err.message,'w');
+    return sampleWalkins(role, loc, exp);
+  }
+}
+
+function addVerificationLinks(w, role, loc){
+  const q = w.verifySearchQuery || `${role} walk-in drive ${w.company} ${loc}`;
+  // Build 3 real verification source URLs
+  w.verifyLinks = [
+    {
+      label: '🔍 Verify on Naukri',
+      url: `https://www.naukri.com/jobs-in-${loc.toLowerCase().replace(/\s+/g,'-')}?q=${encodeURIComponent(role+' walk-in')}`,
+      type: 'naukri'
+    },
+    {
+      label: '🔍 Verify on LinkedIn',
+      url: `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(role+' walk-in drive')}&location=${encodeURIComponent(loc)}`,
+      type: 'linkedin'
+    },
+    {
+      label: '🔍 Google Search',
+      url: `https://www.google.com/search?q=${encodeURIComponent(q)}`,
+      type: 'google'
+    }
+  ];
+  return w;
+}
+
+function sampleWalkins(role, loc, exp){
+  const expN = parseInt(exp)||3;
+  const today = new Date();
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  function fDate(offset){
+    const d=new Date(today); d.setDate(d.getDate()+offset);
+    return {iso:d.toISOString().slice(0,10), display:`${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`};
+  }
+  const companies=[
+    {name:'Infosys BPM Ltd',area:'Electronic City Phase 1, Bengaluru - 560100'},
+    {name:'Wipro Technologies',area:'Sarjapur Road, Bengaluru - 560034'},
+    {name:'TCS (Tata Consultancy)',area:'Whitefield, Bengaluru - 560066'},
+    {name:'HCL Technologies',area:'Koramangala, Bengaluru - 560034'},
+  ];
+  return companies.map((c,i) => {
+    const d = fDate(i*4+3);
+    const w = {
+      company:c.name, role, date:d.iso, dateDisplay:d.display,
+      time:'10:00 AM - 5:00 PM',
+      venue:`${c.name} Office, ${c.area}`,
+      contactPerson:'HR Team — Check company careers page',
+      exp:`${Math.max(0,expN-1)}-${expN+1} years`,
+      skills:[role.split(' ')[0],'Communication','Problem Solving'],
+      salary:'As per industry standards', jobType:'Full-time',
+      confidence:'medium',
+      notes:'Carry 3 copies of updated resume, original ID proof, passport size photos. Dress formally.',
+      verifySearchQuery:`${role} walk-in drive ${c.name} ${loc}`
+    };
+    return addVerificationLinks(w, role, loc);
+  });
+}
+
+// ── RENDER WALK-INS ───────────────────────────────────────────
+function renderWalkins(walkins){
+  const con=document.getElementById('walkinCon');
+  if(!walkins||walkins.length===0){
+    con.innerHTML='<div class="empty"><div class="ei">🚶</div><h3>No Walk-in Drives Found</h3><p>Try a different role or location.</p></div>';
+    updateWalkinStats([]);return;
+  }
+  updateWalkinStats(walkins);
+  const now = new Date();
+  con.innerHTML=walkins.map((w,i)=>{
+    // Countdown
+    let countdownHtml = '';
+    try{
+      const eventDate = new Date(w.date + 'T10:00:00');
+      const diff = eventDate - now;
+      if(diff > 0){
+        const dd = Math.floor(diff/(1000*60*60*24));
+        const hh = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+        countdownHtml = `<div class="countdown-box">⏳ <span class="countdown-val">${dd}d ${hh}h</span> away</div>`;
+      }
+    }catch(e){}
+
+    // Confidence badge
+    const confMap = {high:'conf-high',medium:'conf-med',low:'conf-ai'};
+    const confLabel = {high:'✅ High Confidence',medium:'⚠️ Medium Confidence',low:'🤖 AI Generated'};
+    const confClass = confMap[w.confidence||'medium']||'conf-med';
+    const confText = confLabel[w.confidence||'medium']||'⚠️ Medium Confidence';
+
+    // Skill tags
+    const skillHtml = (w.skills&&w.skills.length)?`<div class="wskills">${w.skills.map(s=>`<span class="wsk">${s}</span>`).join('')}</div>`:'';
+
+    // Verify links
+    const verifyLinksHtml = (w.verifyLinks||[]).map(vl => `<a href="${vl.url}" target="_blank" rel="noopener noreferrer" class="src-link">${vl.label}</a>`).join('<span style="color:var(--muted);margin:0 4px">·</span>');
+
+    return `<div class="wcard">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <div class="wbadge">🚶 WALK-IN DRIVE</div>
+        <span class="src-confidence ${confClass}">${confText}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--text)">${w.company}</div>
+          <div style="font-size:12px;color:var(--walkin);font-weight:600;margin-top:2px">${w.role}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="wdate">${w.dateDisplay||w.date}</div>
+          <div class="wtime">🕐 ${w.time||'10 AM - 5 PM'}</div>
+          ${countdownHtml}
+        </div>
+      </div>
+      ${skillHtml}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+        <div style="background:var(--surface2);border-radius:7px;padding:8px 10px">
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Experience</div>
+          <div style="font-size:11px;font-weight:600;color:var(--text)">${w.exp||'Open'}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:7px;padding:8px 10px">
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Salary</div>
+          <div style="font-size:11px;font-weight:600;color:var(--accent2)">${w.salary||'Competitive'}</div>
+        </div>
+      </div>
+      <div class="wloc"><span>📍</span><span>${w.venue||'Venue TBA'}</span></div>
+      ${w.contactPerson&&w.contactPerson!='NA'?`<div style="font-size:10px;color:var(--muted);margin-top:5px">👤 ${w.contactPerson}</div>`:''}
+      ${w.notes?`<div style="font-size:10px;color:var(--accent3);margin-top:6px;line-height:1.5">⚠️ ${w.notes}</div>`:''}
+
+      <div class="src-verify">
+        <div class="src-verify-title">🔍 Verify This Drive Before Attending</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:7px;line-height:1.6">This walk-in was AI-suggested. Click a source below to confirm it's real on that platform before you go:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+          ${verifyLinksHtml}
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:6px">💡 Search for <em>"${w.company} ${w.role} walk-in"</em> on the platform to find the actual posting.</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateWalkinStats(walkins){
+  document.getElementById('wTotal').textContent=walkins.length;
+  const now=new Date(); const weekLater=new Date(now); weekLater.setDate(now.getDate()+7);
+  const thisWeek=walkins.filter(w=>{try{const d=new Date(w.date);return d>=now&&d<=weekLater;}catch{return false;}}).length;
+  document.getElementById('wThisWeek').textContent=thisWeek;
+  const cities=new Set(walkins.map(w=>(w.venue||'').split(',').slice(-2,-1).join('').trim()).filter(Boolean));
+  document.getElementById('wCities').textContent=cities.size||walkins.length;
+}
+
+function expWalkinsCSV(){
+  if(!walkinDb.length){toast('⚠️ No walk-in data. Run agent first.','e');return;}
+  const h=['Company','Role','Date','Time','Venue','Contact','Experience','Salary','Confidence','Verify on Naukri','Verify on LinkedIn','Google Search'];
+  const rows=walkinDb.map(w=>{
+    const vl=w.verifyLinks||[];
+    return [`"${w.company}"`,`"${w.role}"`,w.dateDisplay||w.date,`"${w.time||''}"`,`"${w.venue||''}"`,`"${w.contactPerson||''}"`,`"${w.exp||''}"`,`"${w.salary||''}"`,w.confidence||'medium',vl[0]?.url||'',vl[1]?.url||'',vl[2]?.url||''];
+  });
+  const csv=[h,...rows].map(r=>r.join(',')).join('\n');
+  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([csv],{type:'text/csv'})),download:`walkins-${new Date().toISOString().slice(0,10)}.csv`});
+  a.click(); toast('✅ Walk-in CSV with verify links downloaded!','ok');
+}
+
+// ── RENDER DB ─────────────────────────────────────────────────
+function renderDb(jobs){
+  const b=document.getElementById('dbB');
+  if(!jobs.length){b.innerHTML='<tr><td colspan="8"><div class="empty"><div class="ei">🗄️</div><h3>No Jobs</h3></div></td></tr>';return;}
+  b.innerHTML=jobs.map(j=>`<tr>
+    <td style="color:var(--muted);font-weight:600">${j.serial}</td>
+    <td><span class="src ${j.color}">${j.portal}</span></td>
+    <td>
+      <div style="font-weight:700;font-size:12px">${j.role}</div>
+      <div style="font-size:10px;color:var(--muted)">Filtered search on ${j.portal}</div>
+    </td>
+    <td style="font-size:11px;color:var(--accent2)">${j.exp}</td>
+    <td style="font-size:11px">📍 ${j.loc}</td>
+    <td>
+      <a class="al" href="${j.applyUrl}" target="_blank" rel="noopener noreferrer">Open ${j.portal} ↗</a>
+      <div style="font-size:9px;color:var(--muted);margin-top:3px;max-width:200px;word-break:break-all;opacity:.6">${j.applyUrl.slice(0,55)}...</div>
+    </td>
+    <td style="color:var(--muted);font-size:11px;white-space:nowrap">${j.generatedAt}</td>
+    <td><span class="badge bnew">Active</span></td>
+  </tr>`).join('');
+}
+
+// ── RENDER SUGGESTIONS ────────────────────────────────────────
+function renderSugg(suggs, jobs){
+  const c=document.getElementById('sCon');
+  document.getElementById('sCnt').textContent=suggs.length+' suggestions';
+  if(!suggs.length){c.innerHTML='<div class="empty"><div class="ei">💡</div><h3>No Suggestions</h3></div>';return;}
+  c.innerHTML=suggs.map((s,i)=>{
+    const j=jobs[i]||jobs[0]||{};
+    const matchColor=s.matchScore>=85?'var(--accent2)':s.matchScore>=70?'var(--accent)':'var(--accent3)';
+    return `<div class="scard">
+      <div class="shd">
+        <div style="flex:1;min-width:0">
+          <div class="sj">${s.portal||j.portal} <span style="color:var(--muted);font-weight:400">Portal</span></div>
+          <div class="sc2">📍 ${j.loc||''} · ${j.exp||''}</div>
+          ${s.resumeHeadline?`<div style="margin-top:6px;background:rgba(0,255,157,.05);border:1px solid rgba(0,255,157,.15);border-radius:6px;padding:6px 9px;font-size:11px;color:var(--accent2)">📝 Suggested Headline: <em>"${s.resumeHeadline}"</em></div>`:''}
+        </div>
+        <div style="text-align:right;margin-left:12px;flex-shrink:0">
+          <div class="ms" style="color:${matchColor}">${s.matchScore||80}%</div>
+          <div class="ml">Match</div>
+        </div>
+      </div>
+      ${s.gapAnalysis?`<div style="background:rgba(255,107,53,.07);border:1px solid rgba(255,107,53,.15);border-radius:6px;padding:7px 10px;font-size:11px;color:var(--accent3);margin-bottom:9px">⚡ Gap: ${s.gapAnalysis}</div>`:''}
+      ${(s.keySkillsRequired||[]).length?`<div class="skill-tags">${s.keySkillsRequired.map(sk=>`<span class="skill-tag">${sk}</span>`).join('')}</div>`:''}
+      <div style="margin-top:9px;margin-bottom:5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)">Resume Tips for ${s.portal||j.portal}</div>
+      <ul class="tips">${(s.tips||[]).map(t=>`<li>${t}</li>`).join('')}</ul>
+      ${(s.mustHaveKeywords||[]).length?`<div style="margin-top:8px"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Must-Have Keywords</div><div class="skill-tags">${s.mustHaveKeywords.map(k=>`<span style="background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.2);border-radius:4px;padding:2px 7px;font-size:10px;color:var(--accent3);font-weight:600">${k}</span>`).join('')}</div></div>`:''}
+      <div style="margin-top:11px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <a class="al" href="${j.applyUrl||'#'}" target="_blank" rel="noopener noreferrer">Open ${s.portal||j.portal} ↗</a>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── PUSH TO SHEET ─────────────────────────────────────────────
+async function doPushDirect(scriptUrl, sheetUrl, jobs){
+  log('Pushing to Google Sheet...','i');
+  try{
+    await fetch(scriptUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:`action=init&sheetUrl=${encodeURIComponent(sheetUrl)}`});
+    await wait(1200);
+    const rows=jobs.map(j=>[j.serial,j.portal,j.role,j.exp,j.loc,j.applyUrl,j.generatedAt,'Active']);
+    for(let i=0;i<rows.length;i+=50){
+      const chunk=rows.slice(i,i+50);
+      await fetch(scriptUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:`action=push&sheetUrl=${encodeURIComponent(sheetUrl)}&rows=${encodeURIComponent(JSON.stringify(chunk))}`});
+      await wait(500);
+    }
+    log(jobs.length+' rows pushed to Google Sheet ✅','s');
+    toast('✅ Data pushed to Google Sheet!','ok');
+  }catch(e){log('Sheet push error: '+e.message,'w');}
+}
+
+async function pushSheet(){
+  const scriptUrl=document.getElementById('sheetUrl').value.trim();
+  const sheetUrl=document.getElementById('googleSheetUrl').value.trim();
+  if(!scriptUrl||!scriptUrl.includes('script.google.com')){toast('⚠️ Add Apps Script URL first','e');return;}
+  if(!jobDb.length){toast('⚠️ Run agent first','e');return;}
+  if(!sheetUrl){const m=prompt('Paste your Google Sheet URL:','');if(!m)return;await doPushDirect(scriptUrl,m,jobDb);return;}
+  await doPushDirect(scriptUrl,sheetUrl,jobDb);
+}
+
+// ── EXPORT CSV ────────────────────────────────────────────────
+function expCSV(){
+  if(!jobDb.length){toast('⚠️ Run agent first','e');return;}
+  const h=['#','Portal','Role','Experience','Location','Search URL','Generated At','Status'];
+  const rows=jobDb.map(j=>[j.serial,j.portal,`"${j.role}"`,`"${j.exp}"`,`"${j.loc}"`,j.applyUrl,j.generatedAt,'Active']);
+  const csv=[h,...rows].map(r=>r.join(',')).join('\n');
+  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([csv],{type:'text/csv'})),download:`jobs-${new Date().toISOString().slice(0,10)}.csv`});
+  a.click(); toast('✅ CSV downloaded!','ok'); log('CSV exported — '+jobDb.length+' entries.','s');
+}
+
+function refDb(){if(!jobDb.length)return;renderDb(jobDb);document.getElementById('sync').textContent='Synced: '+new Date().toLocaleTimeString();}
+
+// ── UTILS ─────────────────────────────────────────────────────
+function setP(p){document.getElementById('pb').style.width=p+'%';document.getElementById('pct').textContent=p+'%';}
+function stat(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
+function clearStats(){['sJ','sN','sD','sS'].forEach(id=>stat(id,'0'));}
+function wait(ms){return new Promise(r=>{simT=setTimeout(r,ms);});}
+function clearLog(){document.getElementById('logbox').innerHTML='';}
+function showSpinner(msg){document.getElementById('sm').textContent=msg;document.getElementById('sov').classList.add('show');}
+function hideSpinner(){document.getElementById('sov').classList.remove('show');}
+
+function log(msg,t='i'){
+  const b=document.getElementById('logbox');
+  const now=new Date();
+  const ts=[now.getHours(),now.getMinutes(),now.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':');
+  const cls={i:'li2',s:'ls',w:'lw',e:'le2'}[t]||'li2';
+  b.innerHTML+=`<div class="le"><span class="lt">${ts}</span><span class="${cls}">${msg}</span></div>`;
+  b.scrollTop=b.scrollHeight;
+}
+
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  document.getElementById('tMsg').textContent=msg;
+  t.className='toast '+(type==='ok'?'ok':type==='e'?'err':'')+' show';
+  setTimeout(()=>t.classList.remove('show'),4200);
+}
+</script>
+</body>
+</html>
